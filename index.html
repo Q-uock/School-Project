@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Todo App</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Burger Menu Button -->
+    <button class="burger-menu" id="burgerMenu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Off-canvas Navigation -->
+    <nav class="off-canvas-nav" id="offCanvasNav">
+        <div class="nav-header">
+            <h2><i class="fas fa-bars"></i> Navigation</h2>
+            <button class="close-nav" id="closeNav">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="nav-content">
+            <ul class="nav-menu">
+                <li><a href="#add" class="active"><i class="fas fa-plus"></i> Hinzufügen</a></li>
+                <li class="nav-search-item">
+                    <a href="#search" id="searchToggle" class="search-toggle">
+                        <i class="fas fa-search"></i> Suche
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </a>
+                    <div class="search-dropdown" id="searchDropdown">
+                        <div class="search-dropdown-container">
+                            <i class="fas fa-search search-dropdown-icon"></i>
+                            <input type="text" id="navSearchInput" placeholder="Aufgaben durchsuchen..." class="nav-search-input">
+                            <button id="clearNavSearch" class="clear-nav-search-btn">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div id="navSearchResults" class="nav-search-results">
+                            <!-- Ergebnisse werden hier angezeigt -->
+                        </div>
+                        <div id="navSearchEmpty" class="nav-search-empty" style="display: none;">
+                        </div>
+                    </div>
+                </li>
+                <li class="nav-filter-item">
+                    <a href="#filter" id="filterToggle" class="filter-toggle">
+                        <i class="fas fa-filter"></i> Filter
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </a>
+                    <div class="filter-dropdown" id="filterDropdown">
+                        <div class="filter-dropdown-section">
+                            <h4 class="filter-dropdown-title">Status</h4>
+                            <div class="filter-dropdown-buttons">
+                                <button class="filter-dropdown-btn active" data-filter="all">
+                                    <i class="fas fa-list"></i> Alle
+                                </button>
+                                <button class="filter-dropdown-btn" data-filter="pending">
+                                    <i class="fas fa-clock"></i> Offen
+                                </button>
+                                <button class="filter-dropdown-btn" data-filter="completed">
+                                    <i class="fas fa-check"></i> Erledigt
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-dropdown-section">
+                            <h4 class="filter-dropdown-title">Priorität</h4>
+                            <div class="filter-dropdown-buttons">
+                                <button class="priority-dropdown-btn" data-priority="low">
+                                    <i class="fas fa-arrow-down"></i> Niedrig
+                                </button>
+                                <button class="priority-dropdown-btn" data-priority="medium">
+                                    <i class="fas fa-minus"></i> Mittel
+                                </button>
+                                <button class="priority-dropdown-btn" data-priority="high">
+                                    <i class="fas fa-exclamation"></i> Hoch
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-dropdown-section">
+                            <h4 class="filter-dropdown-title">Zeitraum</h4>
+                            <div class="date-filter-container">
+                                <div class="date-input-group">
+                                    <label for="dateFrom" class="date-label">Von</label>
+                                    <input type="date" id="dateFrom" class="date-input">
+                                </div>
+                                <div class="date-input-group">
+                                    <label for="dateTo" class="date-label">Bis</label>
+                                    <input type="date" id="dateTo" class="date-input">
+                                </div>
+                            </div>
+                            <div class="date-quick-filters">
+                                <button class="date-quick-btn" data-range="today">
+                                    <i class="fas fa-calendar-day"></i> Heute
+                                </button>
+                                <button class="date-quick-btn" data-range="week">
+                                    <i class="fas fa-calendar-week"></i> Diese Woche
+                                </button>
+                                <button class="date-quick-btn" data-range="month">
+                                    <i class="fas fa-calendar-alt"></i> Dieser Monat
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-dropdown-actions">
+                            <button class="reset-filters-btn" id="resetFilters">
+                                <i class="fas fa-undo"></i> Zurücksetzen
+                            </button>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            
+            <div class="nav-footer">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name">Max Mustermann</span>
+                        <span class="user-email">max@example.com</span>
+                    </div>
+                </div>
+                <button class="nav-upgrade-btn">
+                    <i class="fas fa-crown"></i>
+                    Upgrade zu Pro
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Overlay for off-canvas -->
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <!-- Add View (Hinzufügen) -->
+    <div class="page active" id="addView">
+        <div class="container">
+            <h2 class="page-title"><i class="fas fa-plus-circle"></i> Neue Aufgabe erstellen</h2>
+            
+            <div class="todo-input-section">
+                <div class="input-container">
+                    <input type="text" id="todoInput" placeholder="Neue Aufgabe hinzufügen..." maxlength="200">
+                    <select id="prioritySelect" class="priority-select">
+                        <option value="low">Niedrig</option>
+                        <option value="medium" selected>Mittel</option>
+                        <option value="high">Hoch</option>
+                    </select>
+                    <button id="addBtn" class="add-btn">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="section-divider">
+                <div class="divider-line"></div>
+                <span class="divider-text">Alle Aufgaben</span>
+                <div class="divider-line"></div>
+            </div>
+
+            <div class="stats-section">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalTodos">0</div>
+                    <div class="stat-label">Gesamt</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="pendingTodos">0</div>
+                    <div class="stat-label">Offen</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="completedTodos">0</div>
+                    <div class="stat-label">Erledigt</div>
+                </div>
+            </div>
+
+            <div class="todo-list-container">
+                <ul id="todoList" class="todo-list">
+                    <!-- Todos werden hier dynamisch eingefügt -->
+                </ul>
+                <div id="emptyState" class="empty-state">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h3>Keine Aufgaben vorhanden</h3>
+                    <p>Füge deine erste Aufgabe hinzu, um loszulegen!</p>
+                </div>
+            </div>
+
+            <div class="actions-section">
+                <button id="clearCompleted" class="action-btn clear-btn">
+                    <i class="fas fa-trash"></i> Erledigte löschen
+                </button>
+                <button id="clearAll" class="action-btn danger-btn">
+                    <i class="fas fa-trash-alt"></i> Alle löschen
+                </button>
+            </div>
+        </div>
+    </div>
+
+<!-- Statistics Page -->
+    <div class="page" id="statisticsPage" style="display: none;">
+        <div class="container">
+            <header class="header">
+                <div class="header-content">
+                    <button class="back-btn" id="backToTodos">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h1><i class="fas fa-chart-bar"></i> Produktivitäts-Statistiken</h1>
+                </div>
+                <p class="subtitle">Deine Aufgaben im Überblick</p>
+            </header>
+            
+            <div class="statistics-content">
+                <!-- Overview Cards -->
+                <div class="stats-overview-page">
+                    <div class="stat-card-large">
+                        <div class="stat-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="statTotalTodos">0</div>
+                            <div class="stat-label">Gesamt</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card-large">
+                        <div class="stat-icon completed">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="statCompletedTodos">0</div>
+                            <div class="stat-label">Erledigt</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card-large">
+                        <div class="stat-icon pending">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="statPendingTodos">0</div>
+                            <div class="stat-label">Offen</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Progress Section -->
+                <div class="progress-section-page">
+                    <h3><i class="fas fa-chart-line"></i> Fortschritt</h3>
+                    <div class="progress-card">
+                        <div class="progress-header">
+                            <span>Abschlussrate</span>
+                            <span id="progressPercentage" class="progress-percentage">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Priority Breakdown -->
+                <div class="priority-section-page">
+                    <h3><i class="fas fa-flag"></i> Prioritäten-Verteilung</h3>
+                    <div class="priority-grid">
+                        <div class="priority-card-page high">
+                            <div class="priority-header">
+                                <div class="priority-dot high"></div>
+                                <span class="priority-name">Hoch</span>
+                            </div>
+                            <div class="priority-count" id="statHighPriority">0</div>
+                        </div>
+                        <div class="priority-card-page medium">
+                            <div class="priority-header">
+                                <div class="priority-dot medium"></div>
+                                <span class="priority-name">Mittel</span>
+                            </div>
+                            <div class="priority-count" id="statMediumPriority">0</div>
+                        </div>
+                        <div class="priority-card-page low">
+                            <div class="priority-header">
+                                <div class="priority-dot low"></div>
+                                <span class="priority-name">Niedrig</span>
+                            </div>
+                            <div class="priority-count" id="statLowPriority">0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Activity Timeline -->
+                <div class="activity-section-page">
+                    <h3><i class="fas fa-history"></i> Letzte Aktivitäten</h3>
+                    <div class="activity-timeline" id="activityTimeline">
+                        <div class="activity-item">
+                            <div class="activity-icon"><i class="fas fa-info-circle"></i></div>
+                            <div class="activity-text">Keine Aktivitäten vorhanden</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Productivity Insights -->
+                <div class="insights-section-page">
+                    <h3><i class="fas fa-lightbulb"></i> Produktivitäts-Einblicke</h3>
+                    <div class="insight-grid">
+                        <div class="insight-card-page">
+                            <div class="insight-icon">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <div class="insight-content">
+                                <div class="insight-title">Aktuelle Serie</div>
+                                <div class="insight-value" id="streakDays">0 Tage</div>
+                                <div class="insight-description">Aufeinanderfolgende Tage mit erledigten Aufgaben</div>
+                            </div>
+                        </div>
+                        
+                        <div class="insight-card-page">
+                            <div class="insight-icon">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="insight-content">
+                                <div class="insight-title">Beste Woche</div>
+                                <div class="insight-value" id="bestWeek">0 erledigt</div>
+                                <div class="insight-description">Meiste Aufgaben in einer Woche</div>
+                            </div>
+                        </div>
+                        
+                        <div class="insight-card-page">
+                            <div class="insight-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="insight-content">
+                                <div class="insight-title">Durchschnitt</div>
+                                <div class="insight-value" id="avgPerDay">0.0</div>
+                                <div class="insight-description">Aufgaben pro Tag im Schnitt</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Confirmation Modal -->
+    <div id="confirmModal" class="custom-modal-overlay">
+        <div class="custom-modal">
+            <div class="modal-header">
+                <div class="modal-icon" id="confirmIcon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3 id="confirmTitle">Bestätigung erforderlich</h3>
+            </div>
+            <div class="modal-content">
+                <p id="confirmMessage">Sind Sie sicher?</p>
+            </div>
+            <div class="modal-actions">
+                <button id="confirmCancel" class="modal-btn cancel-btn">
+                    <i class="fas fa-times"></i>
+                    Abbrechen
+                </button>
+                <button id="confirmOk" class="modal-btn confirm-btn">
+                    <i class="fas fa-check"></i>
+                    Bestätigen
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Edit Modal -->
+    <div id="editModal" class="custom-modal-overlay">
+        <div class="custom-modal">
+            <div class="modal-header">
+                <div class="modal-icon edit-icon">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <h3>Aufgabe bearbeiten</h3>
+            </div>
+            <div class="modal-content">
+                <label for="editInput" class="modal-label">Aufgabentext:</label>
+                <input type="text" id="editInput" class="modal-input" placeholder="Aufgabe eingeben..." maxlength="200">
+                <div class="char-counter">
+                    <span id="charCount">0</span>/200 Zeichen
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="editCancel" class="modal-btn cancel-btn">
+                    <i class="fas fa-times"></i>
+                    Abbrechen
+                </button>
+                <button id="editSave" class="modal-btn confirm-btn">
+                    <i class="fas fa-save"></i>
+                    Speichern
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="payment-modal-overlay">
+        <div class="payment-modal">
+            <div class="payment-header">
+                <div class="payment-icon">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <h2>Premium Upgrade</h2>
+                <button id="closePayment" class="close-payment-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="payment-content">
+                <div class="payment-summary">
+                    <div class="plan-details">
+                        <h3>Todo App Premium</h3>
+                        <div class="price-display">
+                            <span class="final-price">€4.99</span>
+                            <span class="original-price">€9.99</span>
+                            <span class="discount-badge">50% RABATT</span>
+                        </div>
+                        <p class="billing-info">Einmalige Zahlung • Lebenslanger Zugang</p>
+                    </div>
+                </div>
+                
+                <form id="paymentForm" class="payment-form">
+                    <div class="form-section">
+                        <h4><i class="fas fa-user"></i> Rechnungsdaten</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">Vorname *</label>
+                                <input type="text" id="firstName" name="firstName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Nachname *</label>
+                                <input type="text" id="lastName" name="lastName" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">E-Mail-Adresse *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4><i class="fas fa-credit-card"></i> Zahlungsinformationen</h4>
+                        <div class="form-group">
+                            <label for="cardNumber">Kartennummer *</label>
+                            <div class="card-input-container">
+                                <input type="text" id="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                                <div class="card-icons">
+                                    <i class="fab fa-cc-visa"></i>
+                                    <i class="fab fa-cc-mastercard"></i>
+                                    <i class="fab fa-cc-amex"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="expiryDate">Gültig bis *</label>
+                                <input type="text" id="expiryDate" name="expiryDate" placeholder="MM/JJ" maxlength="5" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="cvv">CVV *</label>
+                                <input type="text" id="cvv" name="cvv" placeholder="123" maxlength="4" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="cardName">Name auf der Karte *</label>
+                            <input type="text" id="cardName" name="cardName" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4><i class="fas fa-map-marker-alt"></i> Rechnungsadresse</h4>
+                        <div class="form-group">
+                            <label for="address">Straße und Hausnummer *</label>
+                            <input type="text" id="address" name="address" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="zipCode">PLZ *</label>
+                                <input type="text" id="zipCode" name="zipCode" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="city">Stadt *</label>
+                                <input type="text" id="city" name="city" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="country">Land *</label>
+                            <select id="country" name="country" required>
+                                <option value="">Land auswählen</option>
+                                <option value="DE" selected>Deutschland</option>
+                                <option value="AT">Österreich</option>
+                                <option value="CH">Schweiz</option>
+                                <option value="NL">Niederlande</option>
+                                <option value="FR">Frankreich</option>
+                                <option value="IT">Italien</option>
+                                <option value="ES">Spanien</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="terms" name="terms" required>
+                            <label for="terms">Ich akzeptiere die <a href="#" class="link">AGB</a> und <a href="#" class="link">Datenschutzbestimmungen</a> *</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="newsletter" name="newsletter">
+                            <label for="newsletter">Ich möchte den Newsletter erhalten (optional)</label>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-actions">
+                        <button type="button" id="cancelPayment" class="payment-btn cancel-payment-btn">
+                            <i class="fas fa-times"></i>
+                            Abbrechen
+                        </button>
+                        <button type="submit" id="completePayment" class="payment-btn complete-payment-btn">
+                            <i class="fas fa-lock"></i>
+                            Sicher bezahlen - €4.99
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="security-info">
+                    <div class="security-badges">
+                        <div class="security-badge">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>SSL verschlüsselt</span>
+                        </div>
+                        <div class="security-badge">
+                            <i class="fas fa-lock"></i>
+                            <span>Sichere Zahlung</span>
+                        </div>
+                        <div class="security-badge">
+                            <i class="fas fa-undo"></i>
+                            <span>30 Tage Geld-zurück</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
